@@ -1,0 +1,4 @@
+Copy your image files into this folder.
+
+Then open ../index.html, press "Load image folder", and select this folder.
+No manifest or source-code editing is required.

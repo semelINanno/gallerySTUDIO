@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gallery Studio: an experimental, framework-free, bidirectional free-mosaic layout engine extracted from Govin CMS.">
+  <title>Gallery Studio — Govin free mosaic</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#demo">Skip to the demo</a>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Gallery Studio home">
+      <span class="brand__mark" aria-hidden="true">GS</span>
+      <span>Gallery Studio</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#demo">Live demo</a>
+      <a href="#principles">Principles</a>
+      <a href="#usage">Usage</a>
+    </nav>
+    <span class="license-badge">Apache 2.0</span>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <p class="eyebrow">An experiment extracted from Govin CMS</p>
+        <h1 id="hero-title">A free mosaic that plans on both axes.</h1>
+        <p class="hero__lead">
+          Gallery Studio arranges images of different proportions without forcing them into a
+          uniform grid. Its deterministic planner searches for a compact layout, preserves the
+          source ratio and validates spacing before anything reaches the screen.
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#demo">Explore the layout</a>
+          <a class="button button--quiet" href="#usage">Read the API</a>
+        </div>
+      </div>
+      <aside class="hero__facts" aria-label="Project facts">
+        <dl>
+          <div><dt>Runtime</dt><dd>Vanilla JavaScript</dd></div>
+          <div><dt>Dependencies</dt><dd>None</dd></div>
+          <div><dt>Backend</dt><dd>Not required</dd></div>
+          <div><dt>License</dt><dd>Apache License 2.0</dd></div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="demo-section" id="demo" aria-labelledby="demo-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Interactive proof</p>
+          <h2 id="demo-title">Resize it. Retune it. Open an image.</h2>
+        </div>
+        <p>
+          The illustrations are generated locally as SVG data. No third-party image service,
+          framework or build step is involved.
+        </p>
+      </div>
+
+      <form class="controls" aria-label="Gallery controls" onsubmit="return false">
+        <fieldset class="controls__presets">
+          <legend>
+            <span class="control-label">Search preset
+              <span class="tooltip" tabindex="0" aria-describedby="tip-preset">i
+                <span class="tooltip__content" id="tip-preset" role="tooltip">Selects a search budget by gallery size. Loading a folder chooses Small, Medium or Large automatically. Manual values are remembered separately for each tab until the page is reloaded.</span>
+              </span>
+            </span>
+            <span id="preset-status">Automatic · Small</span>
+          </legend>
+          <div class="preset-tabs" role="tablist" aria-label="Search presets by gallery size">
+            <button type="button" role="tab" data-search-preset="small" aria-selected="true">
+              Small <small>&lt; 40</small>
+            </button>
+            <button type="button" role="tab" data-search-preset="medium" aria-selected="false">
+              Medium <small>40–79</small>
+            </button>
+            <button type="button" role="tab" data-search-preset="large" aria-selected="false">
+              Large <small>80+</small>
+            </button>
+          </div>
+        </fieldset>
+        <label>
+          <span class="control-label">Target density
+            <span class="tooltip" tabindex="0" aria-describedby="tip-density">i
+              <span class="tooltip__content" id="tip-density" role="tooltip">Sets the nominal tile scale used by the planner. Higher values tend to produce more, smaller tiles; this is a planning target, not a fixed column count.</span>
+            </span>
+          </span>
+          <output for="density" id="density-output">3.0</output>
+          <input id="density" type="range" min="1.5" max="5" step="0.1" value="3">
+        </label>
+        <label>
+          <span class="control-label">Gap
+            <span class="tooltip" tabindex="0" aria-describedby="tip-gap">i
+              <span class="tooltip__content" id="tip-gap" role="tooltip">The minimum safety margin, in pixels, preserved between tiles during both planning and final validation.</span>
+            </span>
+          </span>
+          <output for="gap" id="gap-output">12 px</output>
+          <input id="gap" type="range" min="4" max="28" step="1" value="12">
+        </label>
+        <label>
+          <span class="control-label">Candidate window
+            <span class="tooltip" tabindex="0" aria-describedby="tip-window">i
+              <span class="tooltip__content" id="tip-window" role="tooltip">How many upcoming images may be inspected before the next placement is chosen. Larger values offer more alternatives but cost more CPU. From 40 images onward adaptive search treats the selected value as an upper bound and may reduce it; the output then shows both values, for example 8 → 6.</span>
+            </span>
+          </span>
+          <output for="window-size" id="window-output">8</output>
+          <input id="window-size" type="range" min="2" max="12" step="1" value="8">
+        </label>
+        <label>
+          <span class="control-label">Beam width
+            <span class="tooltip" tabindex="0" aria-describedby="tip-beam">i
+              <span class="tooltip__content" id="tip-beam" role="tooltip">How many partial compositions survive each search step. A wider beam explores more histories and costs more CPU. From 40 images onward adaptive search may cap it and display the selected and effective values.</span>
+            </span>
+          </span>
+          <output for="beam-width" id="beam-output">36</output>
+          <input id="beam-width" type="range" min="8" max="80" step="4" value="36">
+        </label>
+        <label>
+          <span class="control-label">Maximum tile width
+            <span class="tooltip tooltip--end" tabindex="0" aria-describedby="tip-max-width">i
+              <span class="tooltip__content" id="tip-max-width" role="tooltip">Caps one tile as a percentage of gallery width. Lower values make wide images more likely to share a visual band instead of spanning it alone.</span>
+            </span>
+          </span>
+          <output for="max-width" id="max-width-output">40%</output>
+          <input id="max-width" type="range" min="30" max="100" step="1" value="40">
+        </label>
+        <label>
+          <span class="control-label">Minimum tile scale
+            <span class="tooltip" tabindex="0" aria-describedby="tip-min-scale">i
+              <span class="tooltip__content" id="tip-min-scale" role="tooltip">Limits how far a tile may shrink below its nominal size while fitting a real cavity. Lower values increase packing freedom; higher values preserve visual prominence.</span>
+            </span>
+          </span>
+          <output for="min-scale" id="min-scale-output">55%</output>
+          <input id="min-scale" type="range" min="30" max="100" step="1" value="55">
+        </label>
+        <label class="controls__style">
+          <span class="control-label">Compositional style
+            <span class="tooltip" tabindex="0" aria-describedby="tip-style">i
+              <span class="tooltip__content" id="tip-style" role="tooltip">Blends an airy composition, which favours nominal scale and breathing room, with a compact composition, which favours continuous filling and smaller residual gaps.</span>
+            </span>
+          </span>
+          <output for="composition-style" id="composition-style-output">6% · Artistic · airy</output>
+          <input id="composition-style" type="range" min="0" max="100" step="1" value="6"
+            aria-describedby="composition-style-ends">
+          <small id="composition-style-ends"><span>Artistic · airy</span><span>Compact</span></small>
+        </label>
+        <label class="controls__toggle">
+          <span class="control-label">High reverse factor
+            <span class="tooltip tooltip--end" tabindex="0" aria-describedby="tip-reverse">i
+              <span class="tooltip__content" id="tip-reverse" role="tooltip">When similar orientations form a rigid run, exposes a few later opposite-orientation candidates without globally discarding source order.</span>
+            </span>
+          </span>
+          <input id="high-reverse-factor" type="checkbox" checked>
+        </label>
+        <label class="controls__toggle">
+          <span class="control-label">Harmonic spaces
+            <span class="tooltip" tabindex="0" aria-describedby="tip-harmonic">i
+              <span class="tooltip__content" id="tip-harmonic" role="tooltip">Scores empty space as part of the composition, discouraging repeated widths and rigid row or column frontiers. Its influence decreases towards the compact end.</span>
+            </span>
+          </span>
+          <input id="harmonic-spaces" type="checkbox" checked>
+        </label>
+        <label class="controls__toggle">
+          <span class="control-label">Useful spaces
+            <span class="tooltip" tabindex="0" aria-describedby="tip-useful">i
+              <span class="tooltip__content" id="tip-useful" role="tooltip">Audits meaningful clearance around tiles, derives overlapping calculation cells from the completed layout, resolves them into exclusive boxes and centres each tile inside its box.</span>
+            </span>
+          </span>
+          <input id="useful-spaces" type="checkbox" checked>
+        </label>
+        <fieldset class="controls__diagnostic">
+          <legend class="control-label">Diagnostic
+            <span class="tooltip" tabindex="0" aria-describedby="tip-diagnostic">i
+              <span class="tooltip__content" id="tip-diagnostic" role="tooltip">Visual overlays for inspecting final geometry. They do not alter the plan or add planning work.</span>
+            </span>
+          </legend>
+          <label>
+            <span class="control-label">Cell
+              <span class="tooltip" tabindex="0" aria-describedby="tip-cell">i
+                <span class="tooltip__content" id="tip-cell" role="tooltip">Shows each potentially overlapping calculation cell with a dashed outline.</span>
+              </span>
+            </span>
+            <input id="cell-boundaries" type="checkbox">
+          </label>
+          <label>
+            <span class="control-label">Box
+              <span class="tooltip tooltip--end" tabindex="0" aria-describedby="tip-box">i
+                <span class="tooltip__content" id="tip-box" role="tooltip">Shows the brighter solid, exclusive box used to centre the tile after cell conflicts have been divided.</span>
+              </span>
+            </span>
+            <input id="box-boundaries" type="checkbox">
+          </label>
+        </fieldset>
+        <button class="button button--quiet" id="shuffle" type="button">Rotate order</button>
+        <button class="button button--primary" id="load-folder" type="button">Load image folder</button>
+        <input id="folder-input" type="file" accept="image/*" multiple webkitdirectory hidden>
+      </form>
+
+      <details class="planner-flow">
+        <summary>How the planning flow works</summary>
+        <ol>
+          <li>The planner reads each original image ratio before folder sources are assigned to the gallery.</li>
+          <li>Target density establishes nominal proportional tile sizes; candidate window and beam width control the two-dimensional search budget.</li>
+          <li>High reverse factor, Harmonic spaces and Compositional style influence candidate scoring while the configured gap remains mandatory.</li>
+          <li>After placement, Useful spaces derives calculation cells from the completed geometry and from the gallery edges. Cells may overlap.</li>
+          <li>Cell conflicts are divided into exclusive boxes, giving every tile a non-overlapping area available for alignment.</li>
+          <li>Tiles are centred inside their boxes in one final pass, then bounds, overlap and safety margins are validated.</li>
+          <li>The validated geometry is rendered; locally selected image sources are attached on the following animation frame.</li>
+        </ol>
+      </details>
+
+      <div class="metrics" aria-live="polite">
+        <span><strong id="metric-count">0</strong> tiles</span>
+        <span><strong id="metric-void">—</strong> estimated void</span>
+        <span><strong id="metric-time">—</strong> planning time</span>
+        <span id="metric-useful">Useful spaces off</span>
+        <span id="metric-valid" class="metric-valid">Waiting for layout</span>
+        <span id="metric-breakdown" class="metrics__breakdown">Phase timing available after the next layout</span>
+      </div>
+
+      <div class="gallery-shell">
+        <div class="gallery-studio" data-gallery-studio aria-label="Bidirectional free mosaic demo"></div>
+      </div>
+    </section>
+
+    <section class="principles" id="principles" aria-labelledby="principles-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Design priorities</p>
+          <h2 id="principles-title">Compact, proportional, inspectable.</h2>
+        </div>
+      </div>
+      <ol class="principle-grid">
+        <li><span>01</span><h3>Plan on both axes</h3><p>The search evaluates real two-dimensional cavities instead of flowing along one masonry axis.</p></li>
+        <li><span>02</span><h3>Preserve source ratios</h3><p>Every tile scales proportionally; the original image is never forced into a fixed crop or distorted shape.</p></li>
+        <li><span>03</span><h3>Separate placement from centring</h3><p>Overlapping calculation cells are resolved into exclusive boxes before tiles receive their final alignment.</p></li>
+        <li><span>04</span><h3>Inspect and validate</h3><p>Optional diagnostic overlays expose cells and boxes, while the geometry API checks bounds, overlap and the safety margin.</p></li>
+      </ol>
+    </section>
+
+    <section class="usage" id="usage" aria-labelledby="usage-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Minimal integration</p>
+          <h2 id="usage-title">Bring your own markup and images.</h2>
+        </div>
+      </div>
+      <pre><code>&lt;div class="gallery-studio" data-gallery-studio&gt;
+  &lt;figure class="gallery-studio__item" data-aspect="1.5"&gt;…&lt;/figure&gt;
+&lt;/div&gt;
+
+const gallery = GalleryStudio.mount('[data-gallery-studio]', {
+  density: 3,
+  gap: 12,
+  candidateWindow: 8,
+  beamWidth: 36,
+  maxItemWidthRatio: 0.40,
+  minItemScaleRatio: 0.55,
+  compactionPressure: 0.06,
+  highReverseFactor: true,
+  harmonicSpaces: true,
+  usefulSpaces: true,
+  adaptiveSearch: true
+});</code></pre>
+      <p class="usage__note">
+        The numerical engine is exposed separately as <code>GovinFreeMosaicGeometry</code> and can
+        also be required from Node.js for tests or server-side planning.
+      </p>
+
+      <div class="usage__folder" aria-labelledby="folder-title">
+        <div>
+          <p class="eyebrow">Download kit</p>
+          <h3 id="folder-title">Copy your images, then choose their folder.</h3>
+          <p>
+            The kit already contains the loader. You do not need a manifest and you do not need to
+            edit the source: put your images in one folder, open the demo and select that folder.
+          </p>
+        </div>
+        <ol class="usage__steps">
+          <li>
+            <strong>Copy your images into a folder.</strong>
+            <pre><code>images/
+  coast.jpg
+  tower.webp
+  field.png</code></pre>
+          </li>
+          <li>
+            <strong>Open <code>index.html</code>.</strong>
+            <p>The included SVG illustrations appear first so the kit works immediately.</p>
+          </li>
+          <li>
+            <strong>Press <em>Load image folder</em> and choose the folder.</strong>
+            <p>The loader finds the image files, measures their real proportions and rebuilds the mosaic.</p>
+          </li>
+          <li>
+            <strong>Use the controls to retune the result.</strong>
+            <p>Folder order is preserved alphabetically; <em>Rotate order</em> lets you inspect another starting sequence.</p>
+          </li>
+        </ol>
+        <p class="usage__note">
+          The files stay on your device. The browser grants access only after you choose the folder,
+          and the demo uses temporary local URLs: nothing is uploaded to a server. Chromium-based
+          browsers provide the most complete folder-selection support.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Gallery Studio is an experimental extraction from the Govin CMS gallery renderer.</p>
+    <p>Released under <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
+  </footer>
+
+  <dialog class="lightbox" data-lightbox aria-label="Image preview">
+    <div class="lightbox__toolbar">
+      <button type="button" data-lightbox-previous aria-label="Previous image">←</button>
+      <span data-lightbox-counter>1 / 1</span>
+      <button type="button" data-lightbox-next aria-label="Next image">→</button>
+      <button class="lightbox__close" type="button" data-lightbox-close aria-label="Close preview">×</button>
+    </div>
+    <div class="lightbox__stage">
+      <img data-lightbox-image alt="">
+    </div>
+    <p data-lightbox-caption></p>
+  </dialog>
+
+  <script src="src/free-mosaic-geometry.js"></script>
+  <script src="src/gallery-studio.js"></script>
+  <script src="src/demo-data.js"></script>
+  <script src="src/demo-app.js"></script>
+</body>
+</html>

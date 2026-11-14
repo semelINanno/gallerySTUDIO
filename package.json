@@ -1,0 +1,11 @@
+{
+  "name": "gallery-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Framework-free bidirectional free-mosaic gallery extracted from Govin CMS.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "node tests/free-mosaic-adaptive.test.js && node tests/free-mosaic-performance.test.js",
+    "test:performance": "node tests/free-mosaic-performance.test.js"
+  }
+}
