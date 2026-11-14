@@ -22,7 +22,11 @@ Its interactive demo lets you:
 - compare presets for collections of different sizes;
 - inspect cells, alignment boxes and planning diagnostics;
 - preserve the original aspect ratio of every image.
+
 The renderer has no runtime dependencies and has to be intended as a standalone project. It is released under the Apache License 2.0 and can be used, modified and integrated into other projects under the terms of that license.
+
+
+
 
 A personal note: I published my first CMS-driven website around twenty years ago, at time was graduating, and I have continued working with HTML and related technologies through professional work and side projects. About a year ago I started experimenting with AI-assisted development and was genuinely surprised by how much it accelerated certain coding tasks. Problems that may took me months to be managed had been solved in a few weeks.
 GS is one of that. Main AI tool used during development was OpenAI Codex to write software functionalities and being supported from free version of Copilot for external communication issues.
