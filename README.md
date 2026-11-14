@@ -249,6 +249,10 @@ node tests/free-mosaic-performance.test.js
 
 The performance regression uses 51 mixed portrait and landscape ratios, requires valid geometry, keeps the airy void ratio within a controlled band and fails if planning exceeds one second. Node.js is needed only for these optional regression tests, not to display or use the demo.
 
+## Planning time and image decoding
+The reported planning time covers geometry calculation and DOM placement. It does not include the asynchronous decoding and painting of every image. When loading a large folder of full-resolution photographs, rapid scrolling may temporarily reveal the dark tile placeholder while the browser decodes the corresponding local image. Opening the image in the lightbox forces immediate decoding. For production galleries, please note am still working on a IntersectionObserver functionality to anticipate viewport in order to execute an image.decode() at unlock complete transition in a effectively “ready” view state.
+
+
 ## Project status
 
 This is an experimental release intended for inspection, benchmarking and collaboration. The planner remains deterministic and geometry-first, while adaptive search bounds the expensive harmonic exploration on large galleries. The current finalisation stage separates placement from alignment: it resolves overlapping residual cells into exclusive boxes before centring the tiles and validating the result. Large galleries should still use thumbnails to reduce image decoding and transfer costs, which are separate from the reported planning time.
