@@ -26,6 +26,12 @@ A personal note: I published my first CMS-driven website around twenty years ago
 GS is one of that. Main AI tool used during development was OpenAI Codex to write software functionalities and being supported from free version of Copilot for external communication issues.
 
 
+## Video demo
+
+
+https://github.com/semelINanno/gallerySTUDIO/releases/download/v1.0/GalleryStudio-demo-social.mp4
+
+
 ## Run locally
 
 You can open `index.html` directly in a current browser. A local HTTP server is preferable when testing browser security policies:
